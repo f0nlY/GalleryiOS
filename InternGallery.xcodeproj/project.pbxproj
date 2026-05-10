@@ -58,6 +58,36 @@
 			path = InternGalleryUITests;
 			sourceTree = "<group>";
 		};
+		760B9D872FB0850300939341 /* App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = App;
+			sourceTree = "<group>";
+		};
+		760B9D8B2FB0853300939341 /* Models */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Models;
+			sourceTree = "<group>";
+		};
+		760B9D8C2FB0853E00939341 /* Services */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Services;
+			sourceTree = "<group>";
+		};
+		760B9D8D2FB0854500939341 /* Views */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Views;
+			sourceTree = "<group>";
+		};
+		760B9D8E2FB0854A00939341 /* ViewModels */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		760B9D8F2FB0854F00939341 /* Controllers */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = Controllers;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -88,6 +118,12 @@
 		760B9D4A2FB0808F00939341 = {
 			isa = PBXGroup;
 			children = (
+				760B9D8F2FB0854F00939341 /* Controllers */,
+				760B9D8E2FB0854A00939341 /* ViewModels */,
+				760B9D8D2FB0854500939341 /* Views */,
+				760B9D8C2FB0853E00939341 /* Services */,
+				760B9D8B2FB0853300939341 /* Models */,
+				760B9D872FB0850300939341 /* App */,
 				760B9D552FB0808F00939341 /* InternGallery */,
 				760B9D6C2FB0809100939341 /* InternGalleryTests */,
 				760B9D762FB0809100939341 /* InternGalleryUITests */,
@@ -122,6 +158,12 @@
 			);
 			fileSystemSynchronizedGroups = (
 				760B9D552FB0808F00939341 /* InternGallery */,
+				760B9D872FB0850300939341 /* App */,
+				760B9D8B2FB0853300939341 /* Models */,
+				760B9D8C2FB0853E00939341 /* Services */,
+				760B9D8D2FB0854500939341 /* Views */,
+				760B9D8E2FB0854A00939341 /* ViewModels */,
+				760B9D8F2FB0854F00939341 /* Controllers */,
 			);
 			name = InternGallery;
 			packageProductDependencies = (
