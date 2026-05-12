@@ -18,13 +18,13 @@ final class GalleryViewController: UIViewController {
         layout.minimumLineSpacing = 2
         layout.minimumInteritemSpacing = 2
         
-        let cv = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        cv.backgroundColor = .systemBackground
-        cv.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
-        cv.translatesAutoresizingMaskIntoConstraints = false
-        cv.dataSource = self
-        cv.delegate = self
-        return cv
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
+        collectionView.backgroundColor = .systemBackground
+        collectionView.register(PhotoCell.self, forCellWithReuseIdentifier: PhotoCell.identifier)
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        return collectionView
     }()
     
     override func viewDidLoad() {
@@ -32,6 +32,11 @@ final class GalleryViewController: UIViewController {
         setupUI()
         setupBindings()
         viewModel.fetchPhotos()
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        collectionView.reloadData()
     }
     
     private func setupUI() {
@@ -75,9 +80,18 @@ extension GalleryViewController: UICollectionViewDataSource {
 }
 
 extension GalleryViewController: UICollectionViewDelegateFlowLayout {
+    
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let width = (view.frame.width - 4) / 3
+        let itemsPerRow: CGFloat = 3
+        let spacing: CGFloat = 2
+        let totalSpacing = (itemsPerRow - 1) * spacing
+        let width = (view.frame.width - totalSpacing) / itemsPerRow
         return CGSize(width: width, height: width)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        let detailVC = DetailViewController(photos: viewModel.photos, startIndex: indexPath.item)
+        navigationController?.pushViewController(detailVC, animated: true)
     }
     
     func scrollViewDidScroll(_ scrollView: UIScrollView) {
