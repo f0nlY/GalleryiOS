@@ -7,9 +7,8 @@
 
 import XCTest
 import Combine
-@testable import GalleryApp
+@testable import InternGallery
 
-// MARK: - Mocks
 
 final class MockNetworkService: NetworkServiceProtocol {
     var result: Result<[UnsplashPhotoDTO], NetworkError> = .success([])
@@ -43,7 +42,6 @@ final class MockImageCacheService: ImageCacheServiceProtocol {
     }
 }
 
-// MARK: - Tests
 
 final class GalleryViewModelTests: XCTestCase {
     private var sut: GalleryViewModel!
@@ -124,7 +122,6 @@ final class GalleryViewModelTests: XCTestCase {
         wait(for: [expectation], timeout: 3)
     }
 
-    // MARK: - Helpers
 
     private func makePhotoDTO(id: String) -> UnsplashPhotoDTO {
         let json = """
