@@ -8,50 +8,49 @@
 import UIKit
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
-
     var window: UIWindow?
 
+    func scene(
+        _ scene: UIScene,
+        willConnectTo session: UISceneSession,
+        options connectionOptions: UIScene.ConnectionOptions
+    ) {
+        guard let windowScene = scene as? UIWindowScene else { return }
 
-    func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        guard let windowScene = (scene as? UIWindowScene) else { return }
-        
         let window = UIWindow(windowScene: windowScene)
-        let galleryVC = GalleryViewController()
-        let navVC = UINavigationController(rootViewController: galleryVC)
-        
-        window.rootViewController = navVC
-        self.window = window
+        window.rootViewController = makeRootViewController()
         window.makeKeyAndVisible()
+        self.window = window
     }
 
-    func sceneDidDisconnect(_ scene: UIScene) {
-        // Called as the scene is being released by the system.
-        // This occurs shortly after the scene enters the background, or when its session is discarded.
-        // Release any resources associated with this scene that can be re-created the next time the scene connects.
-        // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+    private func makeRootViewController() -> UIViewController {
+        let tabBar = UITabBarController()
+        tabBar.tabBar.tintColor = .systemPink
+
+        let networkService = NetworkService()
+        let coreDataStack = CoreDataStack.shared
+        let favouritesRepository = FavouritesRepository(coreDataStack: coreDataStack)
+        let imageCacheService = ImageCacheService.shared
+
+        let galleryVM = GalleryViewModel(
+            networkService: networkService,
+            favouritesRepository: favouritesRepository,
+            imageCacheService: imageCacheService
+        )
+        let galleryVC = GalleryViewController(viewModel: galleryVM)
+        galleryVC.tabBarItem = UITabBarItem(title: "Gallery", image: UIImage(systemName: "photo.on.rectangle"), tag: 0)
+        let galleryNav = UINavigationController(rootViewController: galleryVC)
+
+        let favouritesVM = FavouritesViewModel(
+            favouritesRepository: favouritesRepository,
+            imageCacheService: imageCacheService
+        )
+        let favouritesVC = FavouritesViewController(viewModel: favouritesVM)
+        favouritesVC.tabBarItem = UITabBarItem(title: "Favourites", image: UIImage(systemName: "heart.fill"), tag: 1)
+        let favouritesNav = UINavigationController(rootViewController: favouritesVC)
+
+        tabBar.viewControllers = [galleryNav, favouritesNav]
+        return tabBar
     }
-
-    func sceneDidBecomeActive(_ scene: UIScene) {
-        // Called when the scene has moved from an inactive state to an active state.
-        // Use this method to restart any tasks that were paused (or not yet started) when the scene was inactive.
-    }
-
-    func sceneWillResignActive(_ scene: UIScene) {
-        // Called when the scene will move from an active state to an inactive state.
-        // This may occur due to temporary interruptions (ex. an incoming phone call).
-    }
-
-    func sceneWillEnterForeground(_ scene: UIScene) {
-        // Called as the scene transitions from the background to the foreground.
-        // Use this method to undo the changes made on entering the background.
-    }
-
-    func sceneDidEnterBackground(_ scene: UIScene) {
-        // Called as the scene transitions from the foreground to the background.
-        // Use this method to save data, release shared resources, and store enough scene-specific state information
-        // to restore the scene back to its current state.
-    }
-
-
 }
 
