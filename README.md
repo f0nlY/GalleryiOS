@@ -1,4 +1,4 @@
-# InterGallery
+# GalleryiOS
 
 **Автор:** Илья Хмылько - [github.com/f0nlY](https://github.com/f0nlY)
 
@@ -109,3 +109,120 @@ _Скоро будут добавлены_
 - `feature/*` — отдельные фичи, вливаются в `develop` через Pull Request
 
 Формат коммитов: `[ADDED]`, `[FIXED]`, `[REFACTORED]`, `[UPDATED]`, `[REMOVED]`
+
+
+
+
+# GalleryiOS
+
+**Author:** Ilya Khmylko — [github.com/f0nlY](https://github.com/f0nlY)
+
+---
+
+## Overview
+
+InterGallery is an image gallery app that fetches photos from the Unsplash API, allows users to browse them in a grid, view details with swipe navigation, and save favourites that persist between sessions.
+
+---
+
+## Features
+
+- Grid gallery with infinite pagination (30 images/page)
+- Image detail screen with swipe left/right navigation between photos
+- Add/remove favourites via heart button
+- Favourite indicator (❤️) on gallery thumbnails
+- Favourites persisted locally with CoreData
+- In-memory image caching with `NSCache` for smooth scrolling
+- Empty state on Favourites screen
+- Long-press context menu to remove from favourites
+- Error handling with alert presentation
+
+---
+
+## Architecture
+
+**MVVM + Combine**
+
+Each screen has a dedicated ViewController (View) and ViewModel. The ViewModel exposes `@Published` properties that the ViewController subscribes to via Combine. ViewControllers have no knowledge of networking or persistence — all business logic lives in ViewModels and injected services.
+
+```
+InterGallery/
+├── App/                  # AppDelegate, SceneDelegate (DI composition root)
+├── Core/
+│   ├── Network/          # NetworkService, Endpoint, NetworkError
+│   ├── Persistence/      # CoreDataStack, FavouritesRepository
+│   └── ImageCache/       # ImageCacheService (NSCache wrapper)
+├── Models/               # Photo (domain model), GalleryDataModel (CoreData)
+├── Presentation/
+│   ├── Gallery/          # GalleryViewController + ViewModel + Cell
+│   ├── Detail/           # DetailViewController + ViewModel
+│   └── Favourites/       # FavouritesViewController + ViewModel + Cell
+└── InternGalleryTests/
+    └── GalleryViewModelTests.swift
+```
+
+Dependencies are injected through `init` at the composition root (`SceneDelegate`), following the Dependency Inversion Principle.
+
+---
+
+## Tech Stack
+
+| Layer | Solution |
+|---|---|
+| Language | Swift 5.9 |
+| UI | UIKit (programmatic, no Storyboard) |
+| Reactive | Combine |
+| Networking | URLSession |
+| Persistence | CoreData |
+| Image caching | NSCache (custom wrapper) |
+| Linting | SwiftLint |
+| Tests | XCTest |
+
+---
+
+## Design Patterns & Principles
+
+**OOP**
+- Encapsulation — ViewModel properties are `private(set)`, exposed only via `@Published`
+- Inheritance — ViewControllers inherit `UIViewController`, Cells inherit `UICollectionViewCell`
+- Polymorphism — protocol-based services allow mock substitution in tests
+- Abstraction — ViewControllers interact only with ViewModels, unaware of network/storage details
+
+**SOLID**
+- **S** — each class has one responsibility: `NetworkService` handles networking, `FavouritesRepository` handles CoreData, `ImageCacheService` handles caching
+- **O** — new screens can be added without modifying existing classes
+- **L** — mock services in tests fully substitute real implementations without breaking logic
+- **I** — three separate focused protocols instead of one large interface
+- **D** — ViewModels depend on protocols, not concrete implementations
+
+**Design Patterns**
+- Singleton — `CoreDataStack.shared`, `ImageCacheService.shared`
+- Observer — Combine `@Published` + `PassthroughSubject` for reactive updates
+- Repository — `FavouritesRepository` abstracts CoreData behind a clean interface
+- Factory — `SceneDelegate` acts as a composition root / factory for the dependency graph
+
+---
+
+---
+
+## Screenshots
+
+_Coming soon_
+
+---
+
+## Requirements
+
+- iOS 17+
+- Xcode 15+
+- Swift 5.9+
+
+---
+
+## Git Workflow
+
+- `main` — stable, final submission branch
+- `develop` — integration branch
+- `feature/*` — individual features, merged into `develop` via Pull Requests
+
+Commit convention: `[ADDED]`, `[FIXED]`, `[REFACTORED]`, `[UPDATED]`, `[REMOVED]`
