@@ -6,33 +6,137 @@
 //
 
 import XCTest
-@testable import InternGallery
+import Combine
+@testable import GalleryApp
 
-final class InternGalleryTests: XCTestCase {
+// MARK: - Mocks
 
-    override func setUpWithError() throws {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
+final class MockNetworkService: NetworkServiceProtocol {
+    var result: Result<[UnsplashPhotoDTO], NetworkError> = .success([])
+
+    func fetchPhotos(page: Int, perPage: Int) -> AnyPublisher<[UnsplashPhotoDTO], NetworkError> {
+        result.publisher
+            .receive(on: DispatchQueue.main)
+            .eraseToAnyPublisher()
     }
-
-    override func tearDownWithError() throws {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
-
-    func testExample() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-        // Any test you write for XCTest can be annotated as throws and async.
-        // Mark your test throws to produce an unexpected failure when your test encounters an uncaught error.
-        // Mark your test async to allow awaiting for asynchronous code to complete. Check the results with assertions afterwards.
-        // XCTest Documentation
-        // https://developer.apple.com/documentation/xctest
-    }
-
-    func testPerformanceExample() throws {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
-        }
-    }
-
 }
+
+final class MockFavouritesRepository: FavouritesRepositoryProtocol {
+    let favouritesDidChange = PassthroughSubject<Void, Never>()
+    var stored: [Photo] = []
+
+    func fetchAll() -> [Photo] { stored }
+    func isFavourite(id: String) -> Bool { stored.contains { $0.id == id } }
+    func add(photo: Photo) {
+        stored.append(photo)
+        favouritesDidChange.send()
+    }
+    func remove(id: String) {
+        stored.removeAll { $0.id == id }
+        favouritesDidChange.send()
+    }
+}
+
+final class MockImageCacheService: ImageCacheServiceProtocol {
+    func loadImage(from url: URL) -> AnyPublisher<UIImage?, Never> {
+        Just(nil).eraseToAnyPublisher()
+    }
+}
+
+// MARK: - Tests
+
+final class GalleryViewModelTests: XCTestCase {
+    private var sut: GalleryViewModel!
+    private var networkService: MockNetworkService!
+    private var favouritesRepository: MockFavouritesRepository!
+    private var cancellables = Set<AnyCancellable>()
+
+    override func setUp() {
+        super.setUp()
+        networkService = MockNetworkService()
+        favouritesRepository = MockFavouritesRepository()
+        sut = GalleryViewModel(
+            networkService: networkService,
+            favouritesRepository: favouritesRepository,
+            imageCacheService: MockImageCacheService()
+        )
+    }
+
+    override func tearDown() {
+        cancellables.removeAll()
+        sut = nil
+        super.tearDown()
+    }
+
+    func test_loadFirstPage_populatesPhotos() {
+        let dto = makePhotoDTO(id: "abc123")
+        networkService.result = .success([dto])
+        let expectation = expectation(description: "photos loaded")
+
+        sut.$photos
+            .dropFirst()
+            .filter { !$0.isEmpty }
+            .sink { photos in
+                XCTAssertEqual(photos.count, 1)
+                XCTAssertEqual(photos.first?.id, "abc123")
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.loadFirstPage()
+        wait(for: [expectation], timeout: 3)
+    }
+
+    func test_toggleFavourite_addsToRepository() {
+        let dto = makePhotoDTO(id: "fav1")
+        networkService.result = .success([dto])
+        let expectation = expectation(description: "favourite toggled")
+
+        sut.$photos
+            .dropFirst()
+            .filter { !$0.isEmpty }
+            .first()
+            .sink { [weak self] photos in
+                guard let photo = photos.first else { return }
+                self?.sut.toggleFavourite(for: photo)
+                XCTAssertTrue(self?.favouritesRepository.isFavourite(id: "fav1") ?? false)
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.loadFirstPage()
+        wait(for: [expectation], timeout: 3)
+    }
+
+    func test_loadFirstPage_setsErrorMessageOnFailure() {
+        networkService.result = .failure(.invalidResponse)
+        let expectation = expectation(description: "error set")
+
+        sut.$errorMessage
+            .compactMap { $0 }
+            .sink { message in
+                XCTAssertFalse(message.isEmpty)
+                expectation.fulfill()
+            }
+            .store(in: &cancellables)
+
+        sut.loadFirstPage()
+        wait(for: [expectation], timeout: 3)
+    }
+
+    // MARK: - Helpers
+
+    private func makePhotoDTO(id: String) -> UnsplashPhotoDTO {
+        let json = """
+        {
+            "id": "\(id)",
+            "description": "Test description",
+            "alt_description": "Test alt",
+            "urls": { "thumb": "https://example.com/thumb.jpg", "regular": "https://example.com/regular.jpg" },
+            "user": { "name": "Test Author" }
+        }
+        """.data(using: .utf8)!
+        return try! JSONDecoder().decode(UnsplashPhotoDTO.self, from: json)
+    }
+}
+
