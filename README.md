@@ -65,6 +65,13 @@ Dependencies are injected through `init` at the composition root (`SceneDelegate
 
 ---
 
+## Configuration
+
+The API key was intentionally left in the source code (`Core/Network/NetworkService.swift')
+for the convenience of checking the test assignment.
+
+---
+
 ## Design Patterns & Principles
 
 **OOP**
@@ -181,6 +188,13 @@ InterGallery/
 | Кэш изображений | NSCache (собственная обёртка) |
 | Линтер | SwiftLint |
 | Тесты | XCTest |
+
+---
+
+## Настройка
+
+API ключ намеренно оставлен в исходном коде (`Core/Network/NetworkService.swift`) 
+для удобства проверки тестового задания.
 
 ---
 
