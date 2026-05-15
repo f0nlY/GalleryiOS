@@ -6,7 +6,7 @@
 
 ## Overview
 
-InterGallery is an image gallery app that fetches photos from the Unsplash API, allows users to browse them in a grid, view details with swipe navigation, and save favourites that persist between sessions.
+GalleryiOS is an image gallery app that fetches photos from the Unsplash API, allows users to browse them in a grid, view details with swipe navigation, and save favourites that persist between sessions.
 
 ---
 
@@ -92,7 +92,11 @@ Dependencies are injected through `init` at the composition root (`SceneDelegate
 
 ## Screenshots
 
-_Coming soon_
+<p align="center">
+  <img src="Screenshots/gallery.png" width="250" alt="Gallery Screen">
+  <img src="Screenshots/favourites.png" width="250" alt="Detail Screen">
+  <img src="Screenshots/detail.png" width="250" alt="Favourites Screen">
+</p>
 
 ---
 
@@ -205,7 +209,11 @@ InterGallery/
 
 ## Скриншоты
 
-_Скоро будут добавлены_
+<p align="center">
+  <img src="Screenshots/gallery.png" width="250" alt="Gallery Screen">
+  <img src="Screenshots/favourites.png" width="250" alt="Detail Screen">
+  <img src="Screenshots/detail.png" width="250" alt="Favourites Screen">
+</p>
 
 ---
 
